@@ -1,0 +1,70 @@
+import React from 'react'
+
+const Footer = () => {
+  return (
+    <footer>
+        <div className='text-gray-500/80 pt-8 px-6 md:px-16 lg:px-24 xl:px-32'>
+            <div className='flex flex-wrap justify-between gap-12 md:gap-6'>
+                <div className='max-w-80'>
+                    <img src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/dummyLogo/dummyLogoColored.svg" alt="logo" className='mb-4 h-8 md:h-9' />
+                    <p className='text-sm'>
+                        Be the first to hear about new products, exclusive events, and online offers.
+                        Sign up and get 10% off your first orders.
+                    </p>
+                    <div className='flex items-center gap-3 mt-4'>
+                        {/* Instagram */}
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7.75 2A5.75 5.75 0 002 7.75v8.5A5.75 5.75 0 007.75 22h8.5A5.75 5.75 0 0022 16.25v-8.5A5.75 5.75 0 0016.25 2h-8.5zM4.5 7.75A3.25 3.25 0 017.75 4.5h8.5a3.25 3.25 0 013.25 3.25v8.5a3.25 3.25 0 01-3.25 3.25h-8.5a3.25 3.25 0 01-3.25-3.25v-8.5zm9.5 1a4 4 0 11-4 4 4 4 0 014-4zm0 1.5a2.5 2.5 0 102.5 2.5 2.5 2.5 0 00-2.5-2.5zm3.5-.75a.75.75 0 11.75-.75.75.75 0 01-.75.75z" />
+                        </svg>
+                        {/* Facebook */}
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M13.5 9H15V6.5h-1.5c-1.933 0-3.5 1.567-3.5 3.5v1.5H8v3h2.5V21h3v-7.5H16l.5-3h-3z" />
+                        </svg>
+                        {/* Twitter */}
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M22 5.92a8.2 8.2 0 01-2.36.65A4.1 4.1 0 0021.4 4a8.27 8.27 0 01-2.6 1A4.14 4.14 0 0016 4a4.15 4.15 0 00-4.15 4.15c0 .32.04.64.1.94a11.75 11.75 0 01-8.52-4.32 4.14 4.14 0 001.29 5.54A4.1 4.1 0 013 10v.05a4.15 4.15 0 003.33 4.07 4.12 4.12 0 01-1.87.07 4.16 4.16 0 003.88 2.89A8.33 8.33 0 012 19.56a11.72 11.72 0 006.29 1.84c7.55 0 11.68-6.25 11.68-11.67 0-.18 0-.35-.01-.53A8.18 8.18 0 0022 5.92z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div>
+                    <p className='text-lg text-gray-800'>Shop</p>
+                    <ul className='mt-3 flex flex-col gap-2 text-sm'>
+                        <li><a href="#">Men's Top Wear</a></li>
+                        <li><a href="#">Women's Top Wear</a></li>
+                        <li><a href="#">Men's Bottom Wear</a></li>
+                        <li><a href="#">Women's Bottom Wear</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <p className='text-lg text-gray-800'>Support</p>
+                    <ul className='mt-3 flex flex-col gap-2 text-sm'>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Features</a></li>
+                    </ul>
+                </div>
+
+                <div className='max-w-80'>
+                    <div className='flex items-center mt-4'>
+                        <input type="text" className='bg-white rounded-l border border-gray-300 h-9 px-3 outline-none' placeholder='Your email' />
+                        <button className='flex items-center justify-center bg-black h-9 w-9 aspect-square rounded-r'>
+                            {/* Arrow icon */}
+                            <svg className="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 12H5m14 0-4 4m4-4-4-4" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <hr className='border-gray-300 mt-8' />
+            <div className='flex flex-col md:flex-row gap-2 items-center justify-center py-5'>
+                <p>© {new Date().getFullYear()} <a href="#">TheThang</a>. All rights reserved.</p>
+
+            </div>
+        </div>
+    </footer>
+  )
+}
+
+export default Footer;
