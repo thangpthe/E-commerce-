@@ -4,9 +4,9 @@ const {protect,admin} = require("../middleware/authMiddleware");
 const router = express.Router();
 router.post("/",protect,admin, async (req,res) => {
     try {
-        const {name,description,price,discountPrice,countInStock,category,brand,sỉzes,colors,collections,material,gender,images,isFeatured,isPublished,tags,dimensions,weight,sku} = req.body;
+        const {name,description,price,discountPrice,countInStock,category,brand,sizes,colors,collections,material,gender,images,isFeatured,isPublished,tags,dimensions,weight,sku} = req.body;
         const product = new Product ({
-            name,description,price,discountPrice,countInStock,category,brand,sỉzes,colors,collections,material,gender,images,isFeatured,isPublished,tags,dimensions,weight,sku,user: req.user._id,
+            name,description,price,discountPrice,countInStock,category,brand,sizes,colors,collections,material,gender,images,isFeatured,isPublished,tags,dimensions,weight,sku,user: req.user._id,
         })
         const createdProduct = await product.save();
         res.status(201).json(createdProduct);
@@ -74,6 +74,11 @@ router.get("/",async (req,res) => {
         if(collection && collection.toLocaleLowerCase() !== "all"){
             query.collections = collection;
         }
+
+        if (category) {
+            query.category = category;
+        }
+
 
         if(material){
             query.material = {$in: material.split(",")};
