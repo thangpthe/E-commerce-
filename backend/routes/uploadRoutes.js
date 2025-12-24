@@ -48,69 +48,98 @@ const express = require("express");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
+const { protect, admin } = require("../middleware/authMiddleware");
 
 require("dotenv").config();
 
-// Log Cloudinary config (KHÔNG log API_SECRET trong production)
-console.log("Cloudinary Config:", {
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY ? "EXISTS" : "MISSING",
-    api_secret: process.env.CLOUDINARY_API_SECRET ? "EXISTS" : "MISSING",
-});
-
+// Cloudinary configuration
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Log configuration (hide secrets)
+console.log("☁️ Cloudinary Config:", {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "NOT SET",
+    api_key: process.env.CLOUDINARY_API_KEY ? "✓ SET" : "✗ NOT SET",
+    api_secret: process.env.CLOUDINARY_API_SECRET ? "✓ SET" : "✗ NOT SET",
+});
+
+// Multer configuration
 const storage = multer.memoryStorage();
+
 const upload = multer({
-    storage,
+    storage: storage,
     limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB limit
+        fileSize: 5 * 1024 * 1024, // 5MB max file size
     },
     fileFilter: (req, file, cb) => {
         // Accept images only
-        if (!file.mimetype.startsWith('image/')) {
-            cb(new Error('Only image files are allowed!'), false);
+        const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+        
+        if (!allowedTypes.includes(file.mimetype)) {
+            cb(new Error("Only JPEG, PNG, and WebP images are allowed"), false);
             return;
         }
+        
         cb(null, true);
     }
 });
 
 const router = express.Router();
 
-router.post("/", upload.single("image"), async (req, res) => {
+// Handle preflight OPTIONS request
+router.options("/", (req, res) => {
+    res.status(200).end();
+});
+
+// Upload endpoint - Protected (only admin can upload)
+router.post("/", protect, admin, upload.single("image"), async (req, res) => {
     try {
         console.log("📤 Upload request received");
-        console.log("File info:", req.file ? {
-            originalname: req.file.originalname,
-            mimetype: req.file.mimetype,
-            size: req.file.size
+        console.log("👤 User:", req.user.email);
+        console.log("🌐 Origin:", req.headers.origin);
+        console.log("📁 File:", req.file ? {
+            name: req.file.originalname,
+            type: req.file.mimetype,
+            size: `${(req.file.size / 1024).toFixed(2)} KB`
         } : "NO FILE");
 
         if (!req.file) {
-            console.error("❌ No file uploaded");
-            return res.status(400).json({message: "No file uploaded"});
+            console.error(" No file in request");
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+
+        // Additional file validation
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (req.file.size > maxSize) {
+            return res.status(400).json({ 
+                message: `File too large. Maximum size is ${maxSize / 1024 / 1024}MB` 
+            });
         }
 
         console.log("☁️ Uploading to Cloudinary...");
 
+        // Upload to Cloudinary
         const streamUpload = (fileBuffer) => {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
                     {
                         folder: "ecommerce-products",
                         resource_type: "image",
+                        transformation: [
+                            { width: 1000, height: 1000, crop: "limit" },
+                            { quality: "auto:good" },
+                            { fetch_format: "auto" }
+                        ]
                     },
                     (error, result) => {
                         if (result) {
-                            console.log("✅ Cloudinary upload success:", result.secure_url);
+                            console.log(" Cloudinary upload successful");
                             resolve(result);
                         } else {
-                            console.error("❌ Cloudinary upload error:", error);
+                            console.error(" Cloudinary error:", error);
                             reject(error);
                         }
                     }
@@ -122,18 +151,45 @@ router.post("/", upload.single("image"), async (req, res) => {
 
         const result = await streamUpload(req.file.buffer);
         
-        console.log("✅ Image uploaded successfully");
-        res.json({imageUrl: result.secure_url});
+        console.log(" Upload complete:", result.secure_url);
+        
+        res.json({ 
+            imageUrl: result.secure_url,
+            publicId: result.public_id,
+        });
     } catch (error) {
-        console.error("❌ Upload error:", error);
-        console.error("Error details:", {
-            message: error.message,
-            stack: error.stack,
+        console.error("Upload error:", error);
+        
+        // Handle specific error types
+        if (error.message.includes("Only")) {
+            return res.status(400).json({ message: error.message });
+        }
+        
+        res.status(500).json({ 
+            message: "Failed to upload image",
+            error: process.env.NODE_ENV === "production" ? undefined : error.message
         });
-        res.status(500).json({
-            message: "Server Error",
-            error: error.message
-        });
+    }
+});
+
+// Delete image endpoint (optional - for cleanup)
+router.delete("/:publicId", protect, admin, async (req, res) => {
+    try {
+        const { publicId } = req.params;
+        
+        console.log(" Deleting image:", publicId);
+        
+        const result = await cloudinary.uploader.destroy(publicId);
+        
+        if (result.result === "ok") {
+            console.log("Image deleted");
+            res.json({ message: "Image deleted successfully" });
+        } else {
+            res.status(404).json({ message: "Image not found" });
+        }
+    } catch (error) {
+        console.error("Delete error:", error);
+        res.status(500).json({ message: "Failed to delete image" });
     }
 });
 
