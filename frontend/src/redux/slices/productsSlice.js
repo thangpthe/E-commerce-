@@ -39,12 +39,26 @@ export const fetchProductDetails = createAsyncThunk("products/fetchProductDetail
 });
 
 export const updateProduct = createAsyncThunk("products/updateProduct",async ({id,productData}) => {
-    const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`,productData,{
-        headers: {
-            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-        },
-    });
-    return response.data;
+    // const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`,productData,{
+    //     headers: {
+    //         Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+    //     },
+    // });
+    // return response.data;
+    console.log(" Redux: Updating product:", id);
+    console.log(" Redux: Product data:", productData);
+    
+    const response = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`,
+        productData,
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+            },
+        }
+    );
+    
+    console.log(" Redux: Update response:", response.data);
 })
 
 export const fetchSimilarProducts = createAsyncThunk("products/fetchSimilarProducts",async ({id}) => {

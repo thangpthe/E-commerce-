@@ -17,40 +17,99 @@ router.post("/",protect,admin, async (req,res) => {
 })
 
 router.put("/:id",protect, admin, async (req,res) => {
-    try {
-        const {name,description,price,discountPrice,countInStock,category,brand,sizes,colors,collections,material,gender,images,isFeatured,isPublished,tags,dimensions,weight,sku} = req.body; 
-        const product = await Product.findById(req.params.id);
-        if(product){
-            product.name = name || product.name;
-            product.description = description || product.description;
-            product.price = price || product.price;
-            product.discountPrice = discountPrice || product.discountPrice;
-            product.countInStock = countInStock || product.countInStock;
-            product.category = category || product.category;
-            product.brand = brand || product.brand;
-            product.sizes = sizes || product.sizes;
-            product.colors = colors || product.colors;
-            product.collections = collections || product.collections;
-            product.material = material || product.material;
-            product.gender = gender || product.gender;
-            product.images= images || product.images;
-            product.isFeatured = isFeatured !== undefined ? isFeatured : product.isFeatured;
-            product.isPublished = isPublished !== undefined ? isPublished : product.isPublished;
-            product.tags = tags || product.tags;
-            product.dimensions = dimensions || product.dimensions;
-            product.weight = weight || product.weight;
-            product.sku = sku || product.sku;
+    // try {
+    //     const {name,description,price,discountPrice,countInStock,category,brand,sizes,colors,collections,material,gender,images,isFeatured,isPublished,tags,dimensions,weight,sku} = req.body; 
+    //     const product = await Product.findById(req.params.id);
+    //     if(product){
+    //         product.name = name || product.name;
+    //         product.description = description || product.description;
+    //         product.price = price || product.price;
+    //         product.discountPrice = discountPrice || product.discountPrice;
+    //         product.countInStock = countInStock || product.countInStock;
+    //         product.category = category || product.category;
+    //         product.brand = brand || product.brand;
+    //         product.sizes = sizes || product.sizes;
+    //         product.colors = colors || product.colors;
+    //         product.collections = collections || product.collections;
+    //         product.material = material || product.material;
+    //         product.gender = gender || product.gender;
+    //         product.images= images || product.images;
+    //         product.isFeatured = isFeatured !== undefined ? isFeatured : product.isFeatured;
+    //         product.isPublished = isPublished !== undefined ? isPublished : product.isPublished;
+    //         product.tags = tags || product.tags;
+    //         product.dimensions = dimensions || product.dimensions;
+    //         product.weight = weight || product.weight;
+    //         product.sku = sku || product.sku;
 
-            const updatedProduct = await product.save();
-            res.json(updatedProduct);
-        } else{
-            res.status(404).json({message: "Product not found"});
+    //         const updatedProduct = await product.save();
+    //         res.json(updatedProduct);
+    //     } else{
+    //         res.status(404).json({message: "Product not found"});
+    //     }
+    // } catch (error) {
+    //     console.log(error);
+    //     res.status(500).send("Server Error");
+    // }
+     try {
+        console.log("📝 Updating product:", req.params.id);
+        console.log("📝 Request body:", req.body);
+        console.log("📝 Images received:", req.body.images);
+        console.log("📝 Images count:", req.body.images?.length);
+        
+        const {
+            name, description, price, discountPrice, countInStock,
+            category, brand, sizes, colors, collections, material,
+            gender, images, isFeatured, isPublished, tags,
+            dimensions, weight, sku
+        } = req.body;
+        
+        const product = await Product.findById(req.params.id);
+        
+        if (!product) {
+            console.log("❌ Product not found:", req.params.id);
+            return res.status(404).json({message: "Product not found"});
         }
+
+        console.log("📝 Old images count:", product.images?.length);
+
+        // Update all fields (đảm bảo images được update)
+        product.name = name || product.name;
+        product.description = description || product.description;
+        product.price = price !== undefined ? price : product.price;
+        product.discountPrice = discountPrice !== undefined ? discountPrice : product.discountPrice;
+        product.countInStock = countInStock !== undefined ? countInStock : product.countInStock;
+        product.category = category || product.category;
+        product.brand = brand || product.brand;
+        product.sizes = sizes || product.sizes;
+        product.colors = colors || product.colors;
+        product.collections = collections || product.collections;
+        product.material = material || product.material;
+        product.gender = gender || product.gender;
+        
+        // QUAN TRỌNG: Update images (cả khi là array rỗng)
+        if (images !== undefined) {
+            product.images = images;
+            console.log("📝 New images count:", product.images.length);
+        }
+        
+        product.isFeatured = isFeatured !== undefined ? isFeatured : product.isFeatured;
+        product.isPublished = isPublished !== undefined ? isPublished : product.isPublished;
+        product.tags = tags || product.tags;
+        product.dimensions = dimensions || product.dimensions;
+        product.weight = weight || product.weight;
+        product.sku = sku || product.sku;
+
+        const updatedProduct = await product.save();
+        console.log("✅ Product updated successfully");
+        console.log("✅ Final images count:", updatedProduct.images.length);
+        
+        res.json(updatedProduct);
     } catch (error) {
-        console.log(error);
-        res.status(500).send("Server Error");
+        console.error("❌ Update error:", error);
+        res.status(500).json({message: "Server Error", error: error.message});
     }
-})
+});
+
 
 router.delete("/:id",protect,admin,async (req,res) => {
     try {
