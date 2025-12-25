@@ -54,11 +54,13 @@ export const updateProduct = createAsyncThunk("products/updateProduct",async ({i
         {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+                "Content-Type": "application/json"
             },
         }
     );
     
     console.log(" Redux: Update response:", response.data);
+    return response.data;
 })
 
 export const fetchSimilarProducts = createAsyncThunk("products/fetchSimilarProducts",async ({id}) => {

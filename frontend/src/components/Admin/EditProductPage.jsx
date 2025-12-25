@@ -669,7 +669,8 @@ const EditProductPage = () => {
         `${import.meta.env.VITE_BACKEND_URL}/api/upload`,
         formData,
         {
-          headers: {"Content-Type": "multipart/form-data"},
+          headers: {"Content-Type": "multipart/form-data", "Authorization": `Bearer ${localStorage.getItem("userToken")}`},
+
         }
       );
       

@@ -140,7 +140,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // ===== DATABASE CONNECTION =====
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ MongoDB connected"))
     .catch((err) => {
         console.error("❌ MongoDB connection error:", err);
@@ -150,25 +150,30 @@ mongoose.connect(process.env.MONGODB_URI)
 // ===== ROUTES =====
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
-const uploadRoutes = require("./routes/uploadRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
 const orderRoutes = require("./routes/orderRoutes");
-const adminProductRoutes = require("./routes/productAdminRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
+const subscriberRoutes = require("./routes/subscriberRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const productAdminRoutes =  require("./routes/productAdminRoutes");
+const adminOrderRoutes = require("./routes/adminOrderRoutes");
+
 
 // Apply specific rate limiters
-app.use("/api/users/login", authLimiter);
-app.use("/api/users/register", authLimiter);
-app.use("/api/upload", uploadLimiter);
+app.use("/api/users",userRoutes);
+app.use("/api/products",productRoutes);
+app.use("/api/cart",cartRoutes);
+app.use("/api/checkout",checkoutRoutes);
+app.use("/api/orders",orderRoutes);
+app.use("/api/upload",uploadRoutes);
+app.use("/api",subscriberRoutes);
 
-// Register routes
-app.use("/api/users", userRoutes);
-app.use("/api/products", productRoutes);
-app.use("/api/upload", uploadRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/checkout", checkoutRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/admin/products", adminProductRoutes);
+//admin
+app.use("/api/admin/users",adminRoutes);
+app.use("/api/admin/products",productAdminRoutes);
+app.use("/api/admin/orders",adminOrderRoutes);
+
 
 // Health check endpoint
 app.get("/health", (req, res) => {
